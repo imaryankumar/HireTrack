@@ -1,0 +1,22 @@
+# Node modules (never push this)
+node_modules/
+
+# Environment files (secrets)
+.env
+
+# Log files
+*.log
+logs/
+npm-debug.log*
+
+# Editor folders (optional but safe)
+.vscode/
+.idea/
+
+# Coverage files from tests (for future Jest)
+coverage/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
