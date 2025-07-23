@@ -1,5 +1,5 @@
 import response from "../utils/response.js";
-import userModel from "../models/user.model.js";
+import userModel, { roleEnum } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
@@ -118,6 +118,84 @@ export const userProfile = async (req, res) => {
     return response(res, 200, true, "user details", { user });
   } catch (error) {
     console.error("User Profile Error:", error.message);
+    return response(res, 500, false, "Internal server error!!");
+  }
+};
+
+export const allUsers = async (req, res) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return response(res, 400, false, "Invalid userId");
+    }
+    const users = await userModel.find().select("-password -role");
+    if (!users) {
+      return response(res, 400, false, "user not found!!");
+    }
+    const allUsers = {
+      users,
+      totalUsers: users.length,
+    };
+    return response(res, 200, true, "Get all users", { allUsers });
+  } catch (error) {
+    console.error("All Users Error:", error.message);
+    return response(res, 500, false, "Internal server error!!");
+  }
+};
+
+export const updateUserDetail = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const updateValue = req.body;
+    if (!updateValue || Object.keys(updateValue).length === 0) {
+      return response(res, 400, false, "No update value provided!!");
+    }
+    if (!userId) {
+      return response(res, 400, false, "Invalid userId");
+    }
+    const userUpdate = await userModel.findByIdAndUpdate(userId, updateValue, {
+      new: true,
+    });
+    if (!userUpdate) {
+      return response(res, 400, false, "updated user not found!!");
+    }
+    return response(res, 200, true, "updated user", { userUpdate });
+  } catch (error) {
+    console.error("User Update Error:", error.message);
+    return response(res, 500, false, "Internal server error!!");
+  }
+};
+
+export const adminRoleUpdate = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { role } = req.body;
+    if (!role) {
+      return response(res, 400, false, "update field required!!");
+    }
+    if (!roleEnum.includes(role)) {
+      return response(res, 400, false, "Invalid role value");
+    }
+    if (!userId) {
+      return response(res, 400, false, "Invalid userId");
+    }
+    const roleUpdated = await userModel
+      .findByIdAndUpdate(
+        userId,
+        { role },
+        {
+          new: true,
+        }
+      )
+      .select("-password");
+    if (!roleUpdated) {
+      return response(res, 400, false, "user not found!!");
+    }
+    return response(res, 200, true, "Role Updated successfully", {
+      roleUpdated,
+    });
+  } catch (error) {
+    console.error("All Users Error:", error.message);
     return response(res, 500, false, "Internal server error!!");
   }
 };

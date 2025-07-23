@@ -1,5 +1,8 @@
 import express from "express";
 import {
+  adminRoleUpdate,
+  allUsers,
+  updateUserDetail,
   userLogin,
   userProfile,
   userSignup,
@@ -11,6 +14,9 @@ const router = express.Router();
 
 router.post("/signup", userSignup);
 router.post("/login", userLogin);
-router.get("/", isUserAuth, rolebaseAuth(["user"]), userProfile);
+router.get("/profile", isUserAuth, rolebaseAuth(["admin"]), userProfile);
+router.put("/profile/update", isUserAuth, updateUserDetail);
+router.get("/all", isUserAuth, rolebaseAuth(["admin"]), allUsers);
+router.patch("/role/:id", isUserAuth, rolebaseAuth(["admin"]), adminRoleUpdate);
 
 export default router;

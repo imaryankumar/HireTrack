@@ -6,7 +6,7 @@ const rolebaseAuth = (roles) => {
     try {
       const userId = req.userId;
       if (!userId) {
-        return response(res, 400, false, "Invalid user ID");
+        return response(res, 400, false, "Invalid Role ID");
       }
       const user = await userModel.findById(userId).select("role");
       if (!user) {

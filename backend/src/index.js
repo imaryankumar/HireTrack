@@ -6,6 +6,7 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import ConnectDB from "./config/ConnectDB.js";
 import userRouter from "./routes/user.route.js";
+import postRouter from "./routes/posts.route.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use(limiter);
 
 // Router
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/post", postRouter);
 
 //Global Error Handeling
 app.use((err, req, res, next) => {
