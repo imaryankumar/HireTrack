@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true, minlength: 6 },
+    password: { type: String, required: true, minlength: 6, select: false },
     role: { type: String, enum: roleEnum, default: "user" },
     status: {
       type: String,
@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
       public_id: { type: String, default: "" },
     },
     isVerified: { type: Boolean, default: false },
-    savePost: [
+    savedPosts: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "JobApplication",

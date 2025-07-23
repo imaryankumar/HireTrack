@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import JobApplication from "../models/posts.model.js";
+import userModel from "../models/user.model.js";
 import response from "../utils/response.js";
 
 export const postCreated = async (req, res) => {
@@ -70,8 +72,8 @@ export const allPosts = async (req, res) => {
 export const getPost = async (req, res) => {
   try {
     const userId = req.params.id;
-    if (!userId) {
-      return response(res, 400, false, "userId not found!!");
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return response(res, 400, false, "Invalid Post ID");
     }
     const post = await JobApplication.findById(userId).select("-user");
     if (!post) {
@@ -87,12 +89,12 @@ export const getPost = async (req, res) => {
 export const updatePost = async (req, res) => {
   try {
     const userId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return response(res, 400, false, "Invalid Post ID");
+    }
     const updateValue = req.body;
     if (!updateValue || Object.keys(updateValue).length === 0) {
       return response(res, 400, false, "No update value provided!!");
-    }
-    if (!userId) {
-      return response(res, 400, false, "userId not found!!");
     }
     const updatePost = await JobApplication.findByIdAndUpdate(
       userId,
@@ -112,8 +114,8 @@ export const updatePost = async (req, res) => {
 export const deletePost = async (req, res) => {
   try {
     const userId = req.params.id;
-    if (!userId) {
-      return response(res, 400, false, "userId not found!!");
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return response(res, 400, false, "Invalid Post ID");
     }
     const deletePost = await JobApplication.findByIdAndDelete(userId);
     if (!deletePost) {
@@ -125,3 +127,50 @@ export const deletePost = async (req, res) => {
     return response(res, 500, false, "Internal server error!!");
   }
 };
+
+// export const savePosts = async (req, res) => {
+//   try {
+//     const { postId } = req.params;
+//     const userId = req.userId;
+//     if (!mongoose.Types.ObjectId.isValid(postId)) {
+//       return response(res, 400, false, "Invalid post ID");
+//     }
+//     const post = await JobApplication.findById(postId);
+//     if (!post) {
+//       return response(res, 404, false, "Post not found!");
+//     }
+
+//     const user = await userModel.findById(userId);
+//     console.log("user", user);
+
+//     const alreadySaved = user.savedPosts.includes(postId);
+//     if (alreadySaved) {
+//       return response(res, 400, false, "Already saved this post!");
+//     }
+//     user.savedPosts.push(postId);
+//     await user.save();
+//     return response(res, 200, true, "Post saved successfully!");
+//   } catch (error) {
+//     console.error("Save Post Error:", error.message);
+//     return response(res, 500, false, "Internal server error!!");
+//   }
+// };
+
+// export const saveAllPosts = async (req, res) => {
+//   try {
+//     const userId = req.userId;
+//     const user = await userModel.findById(userId).populate("savedPosts");
+
+//     if (!user) {
+//       return response(res, 404, false, "User not found!!");
+//     }
+//     const allposts = {
+//       savePosts: user.savedPosts,
+//       totalPost: user.savedPosts.length,
+//     };
+//     return response(res, 200, true, "Get all posts", { allposts });
+//   } catch (error) {
+//     console.error("Save Post Error:", error.message);
+//     return response(res, 500, false, "Internal server error!!");
+//   }
+// };

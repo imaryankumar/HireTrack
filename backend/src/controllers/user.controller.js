@@ -168,7 +168,7 @@ export const updateUserDetail = async (req, res) => {
 
 export const adminRoleUpdate = async (req, res) => {
   try {
-    const userId = req.userId;
+    const targetUserId = req.params.id;
     const { role } = req.body;
     if (!role) {
       return response(res, 400, false, "update field required!!");
@@ -176,12 +176,12 @@ export const adminRoleUpdate = async (req, res) => {
     if (!roleEnum.includes(role)) {
       return response(res, 400, false, "Invalid role value");
     }
-    if (!userId) {
+    if (!targetUserId) {
       return response(res, 400, false, "Invalid userId");
     }
     const roleUpdated = await userModel
       .findByIdAndUpdate(
-        userId,
+        targetUserId,
         { role },
         {
           new: true,

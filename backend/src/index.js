@@ -41,7 +41,7 @@ app.use(limiter);
 
 // Router
 app.use("/api/v1/user", userRouter);
-app.use("/api/v1/post", postRouter);
+app.use("/api/v1/posts", postRouter);
 
 //Global Error Handeling
 app.use((err, req, res, next) => {
