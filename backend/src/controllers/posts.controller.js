@@ -8,7 +8,7 @@ export const postCreated = async (req, res) => {
     const userId = req.userId;
 
     const { companyName, position, location, salaryRange, notes, status } =
-      req.body;
+      req.body || {};
 
     if (!userId) {
       return response(res, 400, false, "userId not found!!");
@@ -92,7 +92,7 @@ export const updatePost = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return response(res, 400, false, "Invalid Post ID");
     }
-    const updateValue = req.body;
+    const updateValue = req.body || {};
     if (!updateValue || Object.keys(updateValue).length === 0) {
       return response(res, 400, false, "No update value provided!!");
     }

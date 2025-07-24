@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import ConnectDB from "./config/ConnectDB.js";
 import userRouter from "./routes/user.route.js";
 import postRouter from "./routes/posts.route.js";
+import followUpRouter from "./routes/followUp.route.js";
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.use(limiter);
 // Router
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/posts", postRouter);
+app.use("/api/v1/followup", followUpRouter);
 
 //Global Error Handeling
 app.use((err, req, res, next) => {

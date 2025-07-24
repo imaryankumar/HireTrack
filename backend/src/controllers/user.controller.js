@@ -146,7 +146,7 @@ export const allUsers = async (req, res) => {
 export const updateUserDetail = async (req, res) => {
   try {
     const userId = req.userId;
-    const updateValue = req.body;
+    const updateValue = req.body || {};
     if (!updateValue || Object.keys(updateValue).length === 0) {
       return response(res, 400, false, "No update value provided!!");
     }
@@ -169,7 +169,7 @@ export const updateUserDetail = async (req, res) => {
 export const adminRoleUpdate = async (req, res) => {
   try {
     const targetUserId = req.params.id;
-    const { role } = req.body;
+    const { role } = req.body || {};
     if (!role) {
       return response(res, 400, false, "update field required!!");
     }
