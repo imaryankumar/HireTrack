@@ -8,6 +8,7 @@ import ConnectDB from "./config/ConnectDB.js";
 import userRouter from "./routes/user.route.js";
 import postRouter from "./routes/posts.route.js";
 import followUpRouter from "./routes/followUp.route.js";
+import notificationRouter from "./routes/notification.route.js";
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.use(limiter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/followup", followUpRouter);
+app.use("/api/v1/notifications", notificationRouter);
 
 //Global Error Handeling
 app.use((err, req, res, next) => {

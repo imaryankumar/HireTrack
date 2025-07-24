@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import JobApplication from "../models/posts.model.js";
 import userModel from "../models/user.model.js";
 import response from "../utils/response.js";
+import notificationModel from "../models/notification.model.js";
 
 export const postCreated = async (req, res) => {
   try {
@@ -33,6 +34,19 @@ export const postCreated = async (req, res) => {
       salaryRange,
       notes,
     });
+
+    const allAdmins = await userModel.find({ role: "admin" });
+    if (!allAdmins) {
+      return response(res, 400, false, "Admin not found!");
+    }
+    for (const admin of allAdmins) {
+      await notificationModel.create({
+        sender: userId,
+        receiver: admin._id,
+        type: "JOB_APPLIED",
+        message: `Applied to ${companyName}`,
+      });
+    }
 
     const postDetails = {
       companyName: userPost.companyName,

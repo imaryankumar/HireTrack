@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const roleEnum = ["user", "admin"];
+export const roleEnum = ["user", "admin", "moderator"];
 
 const userSchema = new mongoose.Schema(
   {

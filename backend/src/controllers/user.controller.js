@@ -54,13 +54,9 @@ export const userSignup = async (req, res) => {
       },
     });
 
-    const user = {
-      id: newUser._id,
-      username: newUser.username,
-      email: newUser.email,
-    };
-
-    return response(res, 201, true, "user created successfully !!", { user });
+    return response(res, 201, true, "user created successfully !!", {
+      newUser,
+    });
   } catch (error) {
     console.error("Signup Error:", error.message);
     return response(res, 500, false, "Internal server error!!");
@@ -75,12 +71,10 @@ export const userLogin = async (req, res) => {
     if (!email || !password) {
       return response(res, 400, false, "All fields are required!");
     }
-
-    const isUserExist = await userModel.findOne({ email });
+    const isUserExist = await userModel.findOne({ email }).select("+password");
     if (!isUserExist) {
       return response(res, 400, false, "User not registered.");
     }
-
     const isComparePassword = await bcrypt.compare(
       password,
       isUserExist.password
@@ -179,15 +173,13 @@ export const adminRoleUpdate = async (req, res) => {
     if (!targetUserId) {
       return response(res, 400, false, "Invalid userId");
     }
-    const roleUpdated = await userModel
-      .findByIdAndUpdate(
-        targetUserId,
-        { role },
-        {
-          new: true,
-        }
-      )
-      .select("-password");
+    const roleUpdated = await userModel.findByIdAndUpdate(
+      targetUserId,
+      { role },
+      {
+        new: true,
+      }
+    );
     if (!roleUpdated) {
       return response(res, 400, false, "user not found!!");
     }
