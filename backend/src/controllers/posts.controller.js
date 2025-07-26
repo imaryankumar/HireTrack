@@ -3,6 +3,7 @@ import JobApplication from "../models/posts.model.js";
 import userModel from "../models/user.model.js";
 import response from "../utils/response.js";
 import notificationModel from "../models/notification.model.js";
+import { emitToUser } from "../utils/socket.js";
 
 export const postCreated = async (req, res) => {
   try {
@@ -40,12 +41,13 @@ export const postCreated = async (req, res) => {
       return response(res, 400, false, "Admin not found!");
     }
     for (const admin of allAdmins) {
-      await notificationModel.create({
+      const notification = await notificationModel.create({
         sender: userId,
         receiver: admin._id,
         type: "JOB_APPLIED",
         message: `Applied to ${companyName}`,
       });
+      emitToUser(admin._id.toString(), "newNotification", notification);
     }
 
     const postDetails = {

@@ -1,4 +1,5 @@
 import express from "express";
+import http from "http";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -9,14 +10,18 @@ import userRouter from "./routes/user.route.js";
 import postRouter from "./routes/posts.route.js";
 import followUpRouter from "./routes/followUp.route.js";
 import notificationRouter from "./routes/notification.route.js";
+import { initSocketIO } from "./utils/socket.js";
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins =
-  process.env.NODE_ENV === "production" ? ["http://localhost:3000"] : ["*"];
+  process.env.NODE_ENV === "production"
+    ? ["http://localhost:5173"]
+    : ["http://localhost:5173"];
 
 // Middleware
 app.use(express.json());
@@ -53,7 +58,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: "Something went wrong!" });
 });
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   await ConnectDB();
+  initSocketIO(server);
   console.log(`🚀 Server listening on http://localhost:${PORT}`);
 });
