@@ -17,10 +17,11 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
+app.set("trust proxy", 1);
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
-    ? ["http://localhost:5173"]
+    ? ["https://hire-track-nine.vercel.app"]
     : ["http://localhost:5173"];
 
 // Middleware
@@ -51,6 +52,10 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/followup", followUpRouter);
 app.use("/api/v1/notifications", notificationRouter);
+
+app.get("/", (req, res) => {
+  res.send("🎉 HireTracker Backend is Live");
+});
 
 //Global Error Handeling
 app.use((err, req, res, next) => {
