@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
 import cors from "cors";
+import path from "path";
 import rateLimit from "express-rate-limit";
 import ConnectDB from "./config/ConnectDB.js";
 import userRouter from "./routes/user.route.js";
@@ -25,6 +26,7 @@ const allowedOrigins =
     : ["http://localhost:5173"];
 
 // Middleware
+app.use(express.static(path.join(process.cwd(), "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
