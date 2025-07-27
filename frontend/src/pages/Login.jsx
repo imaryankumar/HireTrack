@@ -94,23 +94,30 @@ const AuthForm = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-100 px-4">
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md transition-all duration-300">
         {/* Toggle */}
+        <div className="w-full bg-transparent text-center pb-4">
+          <img
+            src="/HireTrack.png"
+            alt="logo"
+            className="mx-auto h-16 mix-blend-multiply w-auto object-contain"
+          />
+        </div>
         <div className="flex justify-center mb-6 relative">
           <button
             onClick={() => setIsLogin(true)}
-            className={`w-1/2 py-2 text-sm font-semibold transition-colors ${
+            className={`w-1/2 py-2 text-xl font-semibold transition-colors ${
               isLogin
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-400"
+                : "text-gray-400 cursor-pointer"
             }`}
           >
             Login
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`w-1/2 py-2 text-sm font-semibold transition-colors ${
+            className={`w-1/2 py-2 text-xl font-semibold transition-colors ${
               !isLogin
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-400"
+                : "text-gray-400 cursor-pointer"
             }`}
           >
             Signup
@@ -222,7 +229,7 @@ const AuthForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
           >
             {loading ? "Loading.." : isLogin ? "Login" : "Signup"}
           </button>
