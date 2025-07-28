@@ -199,7 +199,9 @@ export const savePosts = async (req, res) => {
     }
     user.savedPosts.push(postId);
     await user.save();
-    return response(res, 200, true, "Post saved successfully!");
+    return response(res, 200, true, "Post saved successfully!", {
+      savedPosts: user.savedPosts,
+    });
   } catch (error) {
     console.error("Save Post Error:", error.message);
     return response(res, 500, false, "Internal server error!!");

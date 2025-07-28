@@ -1,7 +1,7 @@
 import HomeLayout from "../Layouts/HomeLayout";
 
 const Profile = () => {
-  return <HomeLayout>Profile</HomeLayout>;
+  return <HomeLayout>Coming Soon...</HomeLayout>;
 };
 
 export default Profile;

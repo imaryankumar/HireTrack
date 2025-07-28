@@ -16,7 +16,7 @@ body {
   font-style: normal;
 }
 .active {
-  background-color: #fefaf0;
+  background-color: white;
   color: black;
   border-left-width: 4px;
   border-color: rgb(0, 180, 0);

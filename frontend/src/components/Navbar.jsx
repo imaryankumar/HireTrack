@@ -1,6 +1,7 @@
 import { assets } from "../assets/assets";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import { Bell } from "lucide-react";
 
 const Navbar = () => {
   const { logout } = useAuthStore();
@@ -10,7 +11,7 @@ const Navbar = () => {
     navigate("/login");
   };
   return (
-    <div className="bg-[#FEFAF0] text-black h-20 w-full shadow-sm">
+    <div className="bg-white text-black h-20 w-full shadow">
       <div className="w-full h-full flex items-center justify-between px-6">
         <div className="overflow-auto z-10 w-52">
           <img
@@ -19,12 +20,15 @@ const Navbar = () => {
             className="w-full h-full object-contain"
           />
         </div>
-        <button
-          onClick={onLogoutHandler}
-          className="bg-[#2B8AC2] py-2 px-6 rounded-lg text-white cursor-pointer"
-        >
-          Logout
-        </button>
+        <div className="flex items-center justify-center gap-8">
+          <Bell size={25} className="text-gray-600" />
+          <button
+            onClick={onLogoutHandler}
+            className="bg-[#2B8AC2] py-2 px-6 text-md rounded-lg text-white cursor-pointer"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   );

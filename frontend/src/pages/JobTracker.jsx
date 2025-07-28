@@ -1,7 +1,7 @@
 import HomeLayout from "../Layouts/HomeLayout";
 
 const JobTracker = () => {
-  return <HomeLayout>JobTracker</HomeLayout>;
+  return <HomeLayout>Coming Soon...</HomeLayout>;
 };
 
 export default JobTracker;
