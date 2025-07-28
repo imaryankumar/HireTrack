@@ -15,3 +15,21 @@ body {
   font-weight: 400;
   font-style: normal;
 }
+.active {
+  background-color: #fefaf0;
+  color: black;
+  border-left-width: 4px;
+  border-color: rgb(0, 180, 0);
+}
+
+.scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+.scrollbar::-webkit-scrollbar {
+  width: 1px;
+}
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 9999px;
+}

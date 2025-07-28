@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosInstence";
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -56,10 +56,8 @@ const AuthForm = () => {
         };
 
     try {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${
-          isLogin ? "login" : "signup"
-        }`,
+      const { data } = await axiosInstance.post(
+        `/user/${isLogin ? "login" : "signup"}`,
         payload
       );
       if (data?.success) {
@@ -72,7 +70,8 @@ const AuthForm = () => {
           }
         );
         if (isLogin && data.token) {
-          login(data.token, data.user?.username || formData.username);
+          console.log("data", data.user);
+          login(data.token, data.user || formData.username);
           navigate("/");
         }
       } else {

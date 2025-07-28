@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const jobApplicationSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    companyName: { type: String, required: true, unique: true },
+    companyName: { type: String, required: true },
     position: { type: String, required: true },
     status: {
       type: String,
@@ -19,7 +19,7 @@ const jobApplicationSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
+jobApplicationSchema.index({ user: 1, companyName: 1 }, { unique: true });
 const JobApplication =
   mongoose.models.JobApplication ||
   mongoose.model("JobApplication", jobApplicationSchema);

@@ -20,7 +20,10 @@ export const postCreated = async (req, res) => {
       return response(res, 400, false, "All fields are required!");
     }
 
-    const isPostApplied = await JobApplication.findOne({ companyName });
+    const isPostApplied = await JobApplication.findOne({
+      user: userId,
+      companyName,
+    });
     if (isPostApplied) {
       return response(res, 400, false, "Already add this application!!");
     }
@@ -69,15 +72,43 @@ export const postCreated = async (req, res) => {
 };
 
 export const allPosts = async (req, res) => {
+  const { status } = req.query;
   try {
-    const getAllPosts = await JobApplication.find().select("-user");
+    const query = { user: req.userId };
+    if (status) query.status = status;
+    const getAllPosts = await JobApplication.find(query).select("-user");
     if (!getAllPosts) {
       return response(res, 400, false, "Post not found!!");
     }
+
+    const appliedCount = await JobApplication.countDocuments({
+      user: req.userId,
+      status: "applied",
+    });
+    const interviewCount = await JobApplication.countDocuments({
+      user: req.userId,
+      status: "interviewing",
+    });
+    const offerCount = await JobApplication.countDocuments({
+      user: req.userId,
+      status: "offer",
+    });
+    const rejectCount = await JobApplication.countDocuments({
+      user: req.userId,
+      status: "rejected",
+    });
+
     const allPosts = {
       getAllPosts,
+      jobsLength: {
+        appliedCount,
+        interviewCount,
+        offerCount,
+        rejectCount,
+      },
       totalPost: getAllPosts.length,
     };
+
     return response(res, 200, true, "Get all posts", { allPosts });
   } catch (error) {
     console.error("All Post Error:", error.message);

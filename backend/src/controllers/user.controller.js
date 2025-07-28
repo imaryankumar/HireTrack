@@ -91,8 +91,12 @@ export const userLogin = async (req, res) => {
         expiresIn: "7d",
       }
     );
+    const user = {
+      username: isUserExist.username,
+      email: isUserExist.email,
+    };
 
-    return response(res, 200, true, "Login successfully", { token });
+    return response(res, 200, true, "Login successfully", { token, user });
   } catch (error) {
     console.error("Login Error:", error.message);
     return response(res, 500, false, "Internal server error!!");
