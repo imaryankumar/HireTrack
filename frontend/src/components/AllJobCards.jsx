@@ -7,12 +7,13 @@ import {
   StickyNote,
   Bookmark,
   Pencil,
+  Trash,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstence";
 import { useState } from "react";
 
-const AllJobCards = ({ item, index, isSaved = false }) => {
+const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
   const [savedPostIds, setSavedPostIds] = useState([]);
   const isPostSaved = savedPostIds.includes(item._id);
   const onPostSaveHandler = async (id) => {
@@ -21,6 +22,9 @@ const AllJobCards = ({ item, index, isSaved = false }) => {
       if (data?.success) {
         toast.success(data?.message);
         setSavedPostIds(data?.savedPosts);
+        if (data?.message?.toLowerCase().includes("unsaved")) {
+          window.location.reload();
+        }
       } else {
         toast.error(data?.message);
       }
@@ -28,6 +32,23 @@ const AllJobCards = ({ item, index, isSaved = false }) => {
       console.error(error.message);
       toast.error("something went wrong!!" || error.message, {
         id: "post-error",
+      });
+    }
+  };
+
+  const onPostDeleteHandler = async (id) => {
+    try {
+      const { data } = await axiosInstance.delete(`/posts/${id}`);
+      if (data?.success) {
+        toast.success(data?.message);
+        window.location.reload();
+      } else {
+        toast.error(data?.message);
+      }
+    } catch (error) {
+      console.error(error.message);
+      toast.error("something went wrong!!" || error.message, {
+        id: "delete-error",
       });
     }
   };
@@ -43,8 +64,8 @@ const AllJobCards = ({ item, index, isSaved = false }) => {
         </h2>
         {isSaved && (
           <div className="flex items-center justify-center gap-4">
-            <span title="Edit profile" className="cursor-pointer">
-              <Pencil size={22} color="red" />
+            <span title="Edit post" className="cursor-pointer">
+              <Pencil size={22} color="#2B8AC2" />
             </span>
             <span
               title="Save post"
@@ -54,11 +75,16 @@ const AllJobCards = ({ item, index, isSaved = false }) => {
               <Bookmark
                 size={25}
                 className={
-                  isPostSaved ? "text-gray-700" : "text-gray-700 fill-gray-700"
+                  isPostSaved ? "text-gray-700 fill-gray-700" : "text-gray-700"
                 }
               />
             </span>
           </div>
+        )}
+        {unSavedPost && (
+          <span title="Edit post" className="cursor-pointer">
+            <Pencil size={22} color="#2B8AC2" />
+          </span>
         )}
       </div>
       <div className="flex justify-between text-sm text-gray-700">
@@ -91,7 +117,27 @@ const AllJobCards = ({ item, index, isSaved = false }) => {
           </p>
         </div>
       </div>
-      <p className="text-sm text-gray-500 italic">"{item?.notes}"</p>
+      <div className="w-full flex items-center justify-between">
+        <p className="text-sm text-gray-500 italic">"{item?.notes}"</p>
+        {isSaved && (
+          <span
+            onClick={() => onPostDeleteHandler(item._id)}
+            className="cursor-pointer"
+            title="delete"
+          >
+            <Trash color="red" />
+          </span>
+        )}
+        {unSavedPost && (
+          <span
+            onClick={() => onPostSaveHandler(item._id)}
+            className="cursor-pointer"
+            title="unsaved"
+          >
+            <Bookmark className="text-gray-700 fill-gray-700" />
+          </span>
+        )}
+      </div>
     </div>
   );
 };

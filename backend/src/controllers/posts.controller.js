@@ -43,15 +43,15 @@ export const postCreated = async (req, res) => {
     if (!allAdmins) {
       return response(res, 400, false, "Admin not found!");
     }
-    for (const admin of allAdmins) {
-      const notification = await notificationModel.create({
-        sender: userId,
-        receiver: admin._id,
-        type: "JOB_APPLIED",
-        message: `Applied to ${companyName}`,
-      });
-      emitToUser(admin._id.toString(), "newNotification", notification);
-    }
+    // for (const admin of allAdmins) {
+    //   const notification = await notificationModel.create({
+    //     sender: userId,
+    //     receiver: admin._id,
+    //     type: "JOB_APPLIED",
+    //     message: `Applied to ${companyName}`,
+    //   });
+    //   emitToUser(admin._id.toString(), "newNotification", notification);
+    // }
 
     const postDetails = {
       companyName: userPost.companyName,
@@ -193,15 +193,22 @@ export const savePosts = async (req, res) => {
       return response(res, 404, false, "User not found");
     }
 
-    const alreadySaved = user.savedPosts.includes(postId);
-    if (alreadySaved) {
-      return response(res, 400, false, "Already saved this post!");
+    const index = user.savedPosts.indexOf(postId);
+    if (index !== -1) {
+      //unsave post
+      user.savedPosts.splice(index, 1);
+      await user.save();
+      return response(res, 200, true, "Post unsaved successfully", {
+        savedPosts: user.savedPosts,
+      });
+    } else {
+      //save post
+      user.savedPosts.push(postId);
+      await user.save();
+      return response(res, 200, true, "Post saved successfully!", {
+        savedPosts: user.savedPosts,
+      });
     }
-    user.savedPosts.push(postId);
-    await user.save();
-    return response(res, 200, true, "Post saved successfully!", {
-      savedPosts: user.savedPosts,
-    });
   } catch (error) {
     console.error("Save Post Error:", error.message);
     return response(res, 500, false, "Internal server error!!");

@@ -4,7 +4,7 @@ const JobCard = ({ data, listId, setListId }) => {
   };
   return (
     <div
-      className={`h-40 rounded-xl cursor-pointer w-full p-4 capitalize transition-all duration-200
+      className={`h-28 lg:h-40 rounded-xl cursor-pointer w-full p-4 capitalize transition-all duration-200
         flex flex-col justify-between relative overflow-hidden ${data.bgColor}
         ${
           listId === data?.label

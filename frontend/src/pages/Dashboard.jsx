@@ -73,7 +73,7 @@ const Dashboard = () => {
 
   return (
     <div className="w-full h-full relative">
-      <div className="w-full h-auto gap-4 relative flex items-center justify-between py-2">
+      <div className="w-full h-auto gap-4 relative flex lg:flex-row flex-col items-center justify-between py-2">
         {JobsCards?.map((item, index) => {
           return (
             <JobCard
@@ -85,10 +85,10 @@ const Dashboard = () => {
           );
         })}
       </div>
-      <div className="w-full py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="capitalize text-3xl">{listId} Jobs</h1>
-          <div className="flex items-center justify-center gap-4">
+      <div className="w-full pt-8 lg:py-4">
+        <div className="flex lg:flex-row flex-col items-center justify-between gap-3 pb-4 lg:pb-0">
+          <h1 className="capitalize text-2xl lg:text-3xl">{listId} Jobs</h1>
+          <div className="flex items-center justify-center gap-4 flex-row-reverse lg:flex-row">
             <div className="relative group inline-block">
               <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-slate-100 rounded-md hover:bg-slate-200  cursor-pointer">
                 <Filter size={18} />
@@ -106,7 +106,7 @@ const Dashboard = () => {
                 ))}
               </div>
             </div>
-            <div className="border py-2 w-64 px-3 rounded-sm flex items-center justify-between">
+            <div className="border py-1.5 lg:py-2 w-full lg:w-64 px-3 rounded-sm flex items-center justify-between">
               <input
                 placeholder="Search..."
                 className="bg-transparent outline-none border-none w-full h-full pr-1"
@@ -116,7 +116,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <div className="w-full relative flex flex-col items-start gap-3 overflow-auto h-[calc(100%-15rem)] pr-4 scrollbar">
+      <div className="w-full relative flex flex-col items-start gap-3 overflow-auto h-[calc(100%-15rem)] pr-0 lg:pr-4 scrollbar">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, index) => (
             <JobCardSkeleton key={index} />

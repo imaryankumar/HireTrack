@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.post("/signup", userSignup);
 router.post("/login", userLogin);
-router.get("/profile", isUserAuth, rolebaseAuth(["user"]), userProfile);
+router.get("/profile", isUserAuth, userProfile);
 router.put("/profile/update", isUserAuth, updateUserDetail);
 router.get("/all", isUserAuth, rolebaseAuth(["user"]), allUsers);
 router.patch("/role/:id", isUserAuth, rolebaseAuth(["user"]), adminRoleUpdate);

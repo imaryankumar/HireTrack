@@ -5,10 +5,12 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstence";
 import JobCardSkeleton from "../components/JobsCardSkelton";
 import AllJobCards from "../components/AllJobCards";
+import PostsCard from "../components/PostsCard";
 
 const AllJobs = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [allJobLists, setAllJobLists] = useState({});
+  const [isOpenPost, setIsOpenPost] = useState(false);
 
   const getAllApplications = async () => {
     setIsLoading(true);
@@ -36,7 +38,10 @@ const AllJobs = () => {
         <div className="w-full flex items-center justify-between">
           <h2 className="text-2xl">All Job Applications</h2>
           <div className="flex items-center justify-center gap-4">
-            <button className="bg-[#2B8AC2] py-2 px-4 rounded-lg text-white cursor-pointer flex items-center gap-2">
+            <button
+              onClick={() => setIsOpenPost(true)}
+              className="bg-[#2B8AC2] py-2 px-4 rounded-lg text-white cursor-pointer flex items-center gap-2"
+            >
               <Plus size={20} />
               Post a Job
             </button>
@@ -49,7 +54,7 @@ const AllJobs = () => {
             </div>
           </div>
         </div>
-        <div className="w-full relative flex flex-col items-start gap-3 overflow-auto h-[calc(100%-4rem)] pr-4 scrollbar mt-6">
+        <div className="w-full relative flex flex-col items-start gap-3 overflow-auto h-full lg:h-[calc(100%-4rem)] pr-4 scrollbar mt-6">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <JobCardSkeleton key={index} />
@@ -65,6 +70,7 @@ const AllJobs = () => {
           )}
         </div>
       </div>
+      {isOpenPost && <PostsCard setIsOpenPost={setIsOpenPost} />}
     </HomeLayout>
   );
 };
