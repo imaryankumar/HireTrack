@@ -6,7 +6,9 @@ const HomeLayout = ({ children }) => {
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <Asidebar className="w-64 bg-gray-100 border-r border-gray-300" />
-        <main className="flex-1 overflow-y-auto p-4">{children}</main>
+        <main className="flex-1 overflow-auto overflow-x-hidden p-4">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -56,10 +56,10 @@ const PostsCard = ({ setIsOpenPost }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
       <div
-        className="w-full max-w-lg bg-neutral-400 rounded-lg shadow-lg"
+        className="w-full m-2 lg:m-0 max-w-lg bg-neutral-400 rounded-lg shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="h-auto py-4 bg-white text-black p-4 rounded-lg">
+        <div className="h-auto py-4 bg-white text-black p-2 lg:p-4 rounded-lg">
           <div className="w-full flex items-start justify-between">
             <h3 className="text-2xl text-[#2B8AC2]">Post a Job</h3>
             <span

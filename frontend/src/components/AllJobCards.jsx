@@ -59,7 +59,7 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
       className="w-full bg-slate-100 border border-[#2B8AC2] shadow-sm rounded-xl p-4 space-y-4"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-800">
+        <h2 className="text-lg font-semibold text-gray-800 capitalize">
           {item?.companyName}
         </h2>
         {isSaved && (

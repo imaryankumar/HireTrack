@@ -31,14 +31,17 @@ const SavedPost = () => {
   return (
     <HomeLayout>
       <div className="w-full relative h-full py-2">
-        <div className="w-full flex items-center justify-between">
+        <div className="w-full flex lg:flex-row flex-col items-center justify-between gap-4 lg:gap-2">
           <h2 className="text-2xl">All Saved Applications</h2>
-          <div className="flex items-center justify-center gap-4">
-            <button className="bg-[#2B8AC2] py-2 px-4 rounded-lg text-white cursor-pointer flex items-center gap-2">
+          <div className="w-full lg:w-auto flex items-center lg:flex-row flex-col justify-center gap-3 lg:gap-4">
+            <button
+              onClick={() => setIsOpenPost(true)}
+              className="bg-[#2B8AC2] py-2 px-4 rounded-lg text-white cursor-pointer flex items-center gap-2 w-full lg:w-auto justify-center"
+            >
               <Plus size={20} />
               Post a Job
             </button>
-            <div className="border py-2 w-64 px-3 rounded-sm flex items-center justify-between">
+            <div className="border py-2 w-full lg:w-64 px-3 rounded-sm flex items-center justify-between">
               <input
                 placeholder="Search..."
                 className="bg-transparent outline-none border-none w-full h-full pr-1"
@@ -47,7 +50,7 @@ const SavedPost = () => {
             </div>
           </div>
         </div>
-        <div className="w-full relative flex flex-col items-start gap-3 overflow-auto h-[calc(100%-4rem)] pr-4 scrollbar mt-6">
+        <div className="w-full relative flex flex-col items-start gap-3 overflow-auto h-[calc(100%-4rem)] pr-0 lg:pr-4 scrollbar mt-6">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <JobCardSkeleton key={index} />
