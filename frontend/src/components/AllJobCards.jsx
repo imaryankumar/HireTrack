@@ -8,6 +8,7 @@ import {
   Bookmark,
   Pencil,
   Trash,
+  FileText,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstence";
@@ -16,6 +17,16 @@ import { useState } from "react";
 const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
   const [savedPostIds, setSavedPostIds] = useState([]);
   const isPostSaved = savedPostIds.includes(item._id);
+
+  const onDownloadFileHandler = (downloadUrl) => {
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = "";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const onPostSaveHandler = async (id) => {
     try {
       const { data } = await axiosInstance.post(`/posts/save/${id}`);
@@ -111,10 +122,20 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
             <IndianRupee size={16} className="text-gray-500" />
             {item?.salaryRange}
           </p>
-          <p className="flex items-center gap-2 justify-end">
-            <StickyNote size={16} className="text-gray-500" />
-            Note added
-          </p>
+          {item?.resume?.url ? (
+            <p
+              className="flex items-center gap-2 justify-end cursor-pointer text-xs md:text-base hover:underline"
+              onClick={() => onDownloadFileHandler(item?.resume?.url)}
+            >
+              <FileText size={16} className="text-gray-500" />
+              {item?.resume?.url?.split("/").pop()}
+            </p>
+          ) : (
+            <p className="flex items-center gap-2 justify-end cursor-pointer text-xs md:text-base">
+              <StickyNote size={16} className="text-gray-500" />
+              No resume uploaded
+            </p>
+          )}
         </div>
       </div>
       <div className="w-full flex items-center justify-between">

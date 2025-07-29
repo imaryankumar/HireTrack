@@ -4,11 +4,13 @@ import userModel from "../models/user.model.js";
 import response from "../utils/response.js";
 import notificationModel from "../models/notification.model.js";
 import { emitToUser } from "../utils/socket.js";
+import { cloudinary } from "../utils/Cloudinary.js";
 
 export const postCreated = async (req, res) => {
   try {
     const userId = req.userId;
-
+    const filename = req.file.path;
+    console.log("FILENAME", filename);
     const { companyName, position, location, salaryRange, notes, status } =
       req.body || {};
 
@@ -37,6 +39,10 @@ export const postCreated = async (req, res) => {
       location,
       salaryRange,
       notes,
+      resume: {
+        url: filename,
+        public_id: `resume_${userId}`,
+      },
     });
 
     const allAdmins = await userModel.find({ role: "admin" });
@@ -60,6 +66,7 @@ export const postCreated = async (req, res) => {
       location: userPost.location,
       salaryRange: userPost.salaryRange,
       notes: userPost.notes,
+      pdfurl: userPost.resume.url,
     };
 
     return response(res, 201, true, "Post Created Successfully!!", {
@@ -76,11 +83,12 @@ export const allPosts = async (req, res) => {
   try {
     const query = { user: req.userId };
     if (status) query.status = status;
-    const getAllPosts = await JobApplication.find(query).select("-user");
+    const getAllPosts = await JobApplication.find(query)
+      .select("-user")
+      .sort({ createdAt: -1 });
     if (!getAllPosts) {
       return response(res, 400, false, "Post not found!!");
     }
-
     const appliedCount = await JobApplication.countDocuments({
       user: req.userId,
       status: "applied",
@@ -143,6 +151,21 @@ export const updatePost = async (req, res) => {
     if (!updateValue || Object.keys(updateValue).length === 0) {
       return response(res, 400, false, "No update value provided!!");
     }
+    const post = await JobApplication.findById(userId);
+    if (!post) {
+      return response(res, 404, false, "Post not found!!");
+    }
+    if (req.file) {
+      if (post.resume?.public_id) {
+        await cloudinary.uploader.destroy(post.resume.public_id, {
+          resource_type: "raw",
+        });
+      }
+      updateValue.resume = {
+        url: req.file.path,
+        public_id: req.file.filename,
+      };
+    }
     const updatePost = await JobApplication.findByIdAndUpdate(
       userId,
       updateValue,
@@ -164,6 +187,16 @@ export const deletePost = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return response(res, 400, false, "Invalid Post ID");
     }
+    const post = await JobApplication.findById(userId);
+    if (!post) {
+      return response(res, 404, false, "Post not found!!");
+    }
+    if (post.resume?.public_id) {
+      await cloudinary.uploader.destroy(post.resume.public_id, {
+        resource_type: "raw",
+      });
+    }
+
     const deletePost = await JobApplication.findByIdAndDelete(userId);
     if (!deletePost) {
       return response(res, 400, false, "deleted post not found!!");

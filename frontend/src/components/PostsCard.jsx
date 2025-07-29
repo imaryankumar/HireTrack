@@ -13,11 +13,13 @@ const PostsCard = ({ setIsOpenPost }) => {
     salaryRange: "",
     notes: "",
   });
+  const [resume, setResume] = useState(null);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const resetJobFileds = () => {
+  const resetJobFields = () => {
     setFormData({
       companyName: "",
       position: "",
@@ -26,6 +28,7 @@ const PostsCard = ({ setIsOpenPost }) => {
       salaryRange: "",
       notes: "",
     });
+    setResume(null);
   };
 
   const onPostJobHandler = async (e) => {
@@ -37,22 +40,36 @@ const PostsCard = ({ setIsOpenPost }) => {
         toast.error("Please fill all required fields.");
         return;
       }
-      const { data } = await axiosInstance.post("/posts/create", formData);
+
+      const dataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) =>
+        dataToSend.append(key, value)
+      );
+
+      if (resume) {
+        dataToSend.append("resume", resume);
+      }
+
+      const { data } = await axiosInstance.post("/posts/create", dataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       if (data.success) {
-        toast.success(data?.message);
+        toast.success(data.message || "Job posted successfully.");
         setIsOpenPost(false);
-        resetJobFileds();
+        resetJobFields();
         window.location.reload();
       } else {
-        toast.error(data?.message);
+        toast.error(data.message || "Failed to post job.");
       }
     } catch (error) {
       console.error(error.message);
-      toast.error("something went wrong!!");
+      toast.error("Something went wrong!");
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
       <div
@@ -61,54 +78,51 @@ const PostsCard = ({ setIsOpenPost }) => {
       >
         <div className="h-auto py-4 bg-white text-black p-2 lg:p-4 rounded-lg">
           <div className="w-full flex items-start justify-between">
-            <h3 className="text-2xl text-[#2B8AC2]">Post a Job</h3>
+            <h3 className="text-2xl text-[#2B8AC2] font-semibold">
+              Post a Job
+            </h3>
             <span
-              title="close"
+              title="Close"
               className="cursor-pointer"
               onClick={() => setIsOpenPost(false)}
             >
               <X />
             </span>
           </div>
+
           <form
-            className="space-y-4 max-w-lg mx-auto mt-6 px-2"
+            className="space-y-1.5 lg:space-y-4 max-w-lg mx-auto mt-4 lg:mt-6 px-2"
             onSubmit={onPostJobHandler}
           >
-            <div>
-              <label
-                htmlFor="companyName"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Company Name
-              </label>
-              <input
-                id="companyName"
-                type="text"
-                placeholder="Enter company name"
-                value={formData.companyName}
-                onChange={(e) => handleChange("companyName", e.target.value)}
-                className="mt-1 w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B8AC2]"
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="position"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Position
-              </label>
-              <input
-                id="position"
-                type="text"
-                placeholder="Enter position"
-                value={formData.position}
-                onChange={(e) => handleChange("position", e.target.value)}
-                className="mt-1 w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B8AC2]"
-                required
-              />
-            </div>
+            {[
+              { id: "companyName", label: "Company Name", type: "text" },
+              { id: "position", label: "Position", type: "text" },
+              { id: "location", label: "Location", type: "text" },
+              {
+                id: "salaryRange",
+                label: "Salary Range",
+                type: "text",
+                placeholder: "e.g. 7-9 LPA",
+              },
+            ].map(({ id, label, type, placeholder }) => (
+              <div key={id}>
+                <label
+                  htmlFor={id}
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {label}
+                </label>
+                <input
+                  id={id}
+                  type={type}
+                  placeholder={placeholder || `Enter ${label.toLowerCase()}`}
+                  value={formData[id]}
+                  onChange={(e) => handleChange(id, e.target.value)}
+                  className="mt-1 w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B8AC2]"
+                  required
+                />
+              </div>
+            ))}
 
             <div>
               <label
@@ -124,45 +138,12 @@ const PostsCard = ({ setIsOpenPost }) => {
                 className="mt-1 w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B8AC2]"
               >
                 <option value="applied">Applied</option>
-                <option value="interviewing">Interview</option>
+                <option value="interviewing">Interviewing</option>
                 <option value="offer">Offered</option>
                 <option value="rejected">Rejected</option>
               </select>
             </div>
 
-            <div>
-              <label
-                htmlFor="location"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Location
-              </label>
-              <input
-                id="location"
-                type="text"
-                placeholder="Enter location"
-                value={formData.location}
-                onChange={(e) => handleChange("location", e.target.value)}
-                className="mt-1 w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B8AC2]"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="salaryRange"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Salary Range
-              </label>
-              <input
-                id="salaryRange"
-                type="text"
-                placeholder="e.g. 7-9 LPA"
-                value={formData.salaryRange}
-                onChange={(e) => handleChange("salaryRange", e.target.value)}
-                className="mt-1 w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B8AC2]"
-              />
-            </div>
             <div>
               <label
                 htmlFor="notes"
@@ -179,12 +160,28 @@ const PostsCard = ({ setIsOpenPost }) => {
                 rows={3}
               />
             </div>
+            <div>
+              <label
+                htmlFor="resume"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Upload Resume (PDF only)
+              </label>
+              <input
+                id="resume"
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setResume(e.target.files[0])}
+                className="mt-1 w-full border px-3 py-2 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#2B8AC2]"
+              />
+            </div>
+
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-[#2B8AC2] text-white py-3 w-full rounded-lg cursor-pointer"
+              className="bg-[#2B8AC2] text-white py-3 w-full rounded-lg cursor-pointer hover:bg-[#2473a4] mt-2 transition"
             >
-              {isLoading ? "Loading.." : "Post a Job"}
+              {isLoading ? "Posting..." : "Post a Job"}
             </button>
           </form>
         </div>

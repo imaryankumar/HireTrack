@@ -10,10 +10,13 @@ import {
   savePosts,
   updatePost,
 } from "../controllers/posts.controller.js";
+import { storage } from "../utils/Cloudinary.js";
+import multer from "multer";
 
+const upload = multer({ storage });
 const router = express.Router();
 
-router.post("/create", isUserAuth, postCreated);
+router.post("/create", upload.single("resume"), isUserAuth, postCreated);
 router.get("/all", isUserAuth, allPosts);
 router.get("/saved", isUserAuth, saveAllPosts);
 router.post("/save/:postId", isUserAuth, savePosts);

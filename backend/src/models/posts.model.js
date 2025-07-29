@@ -13,6 +13,16 @@ const jobApplicationSchema = new mongoose.Schema(
     appliedDate: { type: Date },
     location: { type: String, required: true },
     salaryRange: { type: String },
+    resume: {
+      url: {
+        type: String,
+        default: "",
+      },
+      public_id: {
+        type: String,
+        default: "",
+      },
+    },
     notes: { type: String },
   },
   {
