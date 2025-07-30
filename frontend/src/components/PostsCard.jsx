@@ -1,10 +1,14 @@
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstence";
+import usePostModal from "../store/usePostModal";
+import useJobStore from "../store/jobStore";
 
-const PostsCard = ({ setIsOpenPost }) => {
+const PostsCard = () => {
+  const { isOpen, closePostModal, mode, jobData } = usePostModal();
   const [isLoading, setIsLoading] = useState(false);
+  const { allJobData } = useJobStore();
   const [formData, setFormData] = useState({
     companyName: "",
     position: "",
@@ -31,6 +35,21 @@ const PostsCard = ({ setIsOpenPost }) => {
     setResume(null);
   };
 
+  useEffect(() => {
+    if (mode === "edit" && jobData) {
+      setFormData({
+        companyName: jobData.companyName || "",
+        position: jobData.position || "",
+        status: jobData.status || "applied",
+        location: jobData.location || "",
+        salaryRange: jobData.salaryRange || "",
+        notes: jobData.notes || "",
+      });
+    } else {
+      resetJobFields();
+    }
+  }, [mode, jobData]);
+
   const onPostJobHandler = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -56,9 +75,8 @@ const PostsCard = ({ setIsOpenPost }) => {
 
       if (data.success) {
         toast.success(data.message || "Job posted successfully.");
-        setIsOpenPost(false);
+        closePostModal();
         resetJobFields();
-        window.location.reload();
       } else {
         toast.error(data.message || "Failed to post job.");
       }
@@ -69,6 +87,8 @@ const PostsCard = ({ setIsOpenPost }) => {
       setIsLoading(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
@@ -84,7 +104,7 @@ const PostsCard = ({ setIsOpenPost }) => {
             <span
               title="Close"
               className="cursor-pointer"
-              onClick={() => setIsOpenPost(false)}
+              onClick={() => closePostModal()}
             >
               <X />
             </span>
@@ -181,7 +201,13 @@ const PostsCard = ({ setIsOpenPost }) => {
               disabled={isLoading}
               className="bg-[#2B8AC2] text-white py-3 w-full rounded-lg cursor-pointer hover:bg-[#2473a4] mt-2 transition"
             >
-              {isLoading ? "Posting..." : "Post a Job"}
+              {isLoading
+                ? mode === "edit"
+                  ? "Updating..."
+                  : "Posting..."
+                : mode === "edit"
+                ? "Update Job"
+                : "Post Job"}
             </button>
           </form>
         </div>

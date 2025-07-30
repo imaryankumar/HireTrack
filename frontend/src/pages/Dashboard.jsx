@@ -12,17 +12,22 @@ import {
   XCircle,
   Search,
   Filter,
+  Plus,
 } from "lucide-react";
+import usePostModal from "../store/usePostModal";
 
 const Dashboard = () => {
   const [jobLists, setJobLists] = useState({});
+  const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [listId, setListId] = useState("applied");
 
   const getJobApplicationData = async () => {
     setIsLoading(true);
     try {
-      const { data } = await axiosInstance.get(`/posts/all/?status=${listId}`);
+      const { data } = await axiosInstance.get(
+        `/posts/all/?status=${listId}&search=${search}`
+      );
       if (data?.success) {
         setJobLists(data?.allPosts);
       } else {
@@ -37,8 +42,12 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    getJobApplicationData();
-  }, [listId]);
+    const debounce = setTimeout(() => {
+      getJobApplicationData();
+    }, 500);
+
+    return () => clearTimeout(debounce);
+  }, [search, listId]);
 
   const JobsCards = [
     {
@@ -88,31 +97,43 @@ const Dashboard = () => {
       <div className="w-full pt-8 lg:py-4">
         <div className="flex lg:flex-row flex-col items-center justify-between gap-3 pb-4 lg:pb-0">
           <h1 className="capitalize text-2xl lg:text-3xl">{listId} Jobs</h1>
-          <div className="flex items-center justify-center gap-4 flex-row-reverse lg:flex-row">
-            <div className="relative group inline-block">
-              <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-slate-100 rounded-md hover:bg-slate-200  cursor-pointer">
-                <Filter size={18} />
-                <span className="hidden sm:inline">Filter</span>
-              </button>
-              <div className="absolute z-10 mt-2 w-40 bg-white border rounded-md shadow-md opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all origin-top-left p-2 space-y-1">
-                {JobsCards?.map((item) => (
-                  <button
-                    key={item.label}
-                    onClick={() => setListId(item.label)}
-                    className="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-left rounded hover:bg-gray-100 cursor-pointer"
-                  >
-                    <span className="capitalize">{item.label}</span>
-                  </button>
-                ))}
+          <div className="flex items-center justify-center gap-4 flex-col lg:flex-row-reverse">
+            <div className="flex items-center justify-center gap-4 flex-row-reverse lg:flex-row">
+              <div className="relative group inline-block">
+                <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-slate-100 rounded-md hover:bg-slate-200  cursor-pointer">
+                  <Filter size={18} />
+                  <span className="hidden sm:inline">Filter</span>
+                </button>
+                <div className="absolute z-10 mt-2 w-40 bg-white border rounded-md shadow-md opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all origin-top-left p-2 space-y-1">
+                  {JobsCards?.map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => setListId(item.label)}
+                      className="flex items-center w-full gap-2 px-3 py-1.5 text-sm text-left rounded hover:bg-gray-100 cursor-pointer"
+                    >
+                      <span className="capitalize">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border py-1.5 lg:py-2 w-full lg:w-64 px-3 rounded-sm flex items-center justify-between">
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search..."
+                  className="bg-transparent outline-none border-none w-full h-full pr-1"
+                />
+                <Search size={20} />
               </div>
             </div>
-            <div className="border py-1.5 lg:py-2 w-full lg:w-64 px-3 rounded-sm flex items-center justify-between">
-              <input
-                placeholder="Search..."
-                className="bg-transparent outline-none border-none w-full h-full pr-1"
-              />
-              <Search size={20} />
-            </div>
+            <button
+              onClick={() => usePostModal.getState().openPostModal("create")}
+              className="bg-[#2B8AC2] py-2 px-4 rounded-lg text-white cursor-pointer flex items-center gap-2 w-full lg:w-auto justify-center"
+            >
+              <Plus size={20} />
+              Post a Job
+            </button>
           </div>
         </div>
       </div>

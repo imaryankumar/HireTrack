@@ -9,8 +9,7 @@ import { cloudinary } from "../utils/Cloudinary.js";
 export const postCreated = async (req, res) => {
   try {
     const userId = req.userId;
-    const filename = req.file.path;
-    console.log("FILENAME", filename);
+    const filename = req.file.path || null;
     const { companyName, position, location, salaryRange, notes, status } =
       req.body || {};
 
@@ -39,10 +38,12 @@ export const postCreated = async (req, res) => {
       location,
       salaryRange,
       notes,
-      resume: {
-        url: filename,
-        public_id: `resume_${userId}`,
-      },
+      resume: filename
+        ? {
+            url: filename,
+            public_id: `resume_${userId}`,
+          }
+        : undefined,
     });
 
     const allAdmins = await userModel.find({ role: "admin" });
@@ -66,7 +67,7 @@ export const postCreated = async (req, res) => {
       location: userPost.location,
       salaryRange: userPost.salaryRange,
       notes: userPost.notes,
-      pdfurl: userPost.resume.url,
+      pdfurl: userPost.resume.url || null,
     };
 
     return response(res, 201, true, "Post Created Successfully!!", {
@@ -79,32 +80,42 @@ export const postCreated = async (req, res) => {
 };
 
 export const allPosts = async (req, res) => {
-  const { status } = req.query;
+  const { status, search = "", page = 1, limit = 10 } = req.query;
   try {
     const query = { user: req.userId };
     if (status) query.status = status;
+
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+      query.$or = [
+        { companyName: searchRegex },
+        { position: searchRegex },
+        { location: searchRegex },
+      ];
+    }
+
+    // Pagination logic
+    const skip = (Number(page) - 1) * Number(limit);
+
     const getAllPosts = await JobApplication.find(query)
       .select("-user")
-      .sort({ createdAt: -1 });
-    if (!getAllPosts) {
-      return response(res, 400, false, "Post not found!!");
-    }
-    const appliedCount = await JobApplication.countDocuments({
-      user: req.userId,
-      status: "applied",
-    });
-    const interviewCount = await JobApplication.countDocuments({
-      user: req.userId,
-      status: "interviewing",
-    });
-    const offerCount = await JobApplication.countDocuments({
-      user: req.userId,
-      status: "offer",
-    });
-    const rejectCount = await JobApplication.countDocuments({
-      user: req.userId,
-      status: "rejected",
-    });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    // Count total for pagination
+    const totalPosts = await JobApplication.countDocuments(query);
+
+    const [appliedCount, interviewCount, offerCount, rejectCount] =
+      await Promise.all([
+        JobApplication.countDocuments({ user: req.userId, status: "applied" }),
+        JobApplication.countDocuments({
+          user: req.userId,
+          status: "interviewing",
+        }),
+        JobApplication.countDocuments({ user: req.userId, status: "offer" }),
+        JobApplication.countDocuments({ user: req.userId, status: "rejected" }),
+      ]);
 
     const allPosts = {
       getAllPosts,
@@ -114,7 +125,9 @@ export const allPosts = async (req, res) => {
         offerCount,
         rejectCount,
       },
-      totalPost: getAllPosts.length,
+      totalPost: totalPosts,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalPosts / Number(limit)),
     };
 
     return response(res, 200, true, "Get all posts", { allPosts });
@@ -250,8 +263,29 @@ export const savePosts = async (req, res) => {
 
 export const saveAllPosts = async (req, res) => {
   try {
+    const { search = "", page = 1, limit = 10 } = req.query;
     const userId = req.userId;
-    const user = await userModel.findById(userId).populate("savedPosts");
+    const skip = Number(page - 1) * Number(limit);
+
+    const matchCondition = search
+      ? {
+          $or: [
+            { companyName: { $regex: search, $options: "i" } },
+            { position: { $regex: search, $options: "i" } },
+            { location: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    const user = await userModel.findById(userId).populate({
+      path: "savedPosts",
+      match: matchCondition,
+      options: {
+        sort: { createdAt: -1 },
+        skip: parseInt(skip),
+        limit: parseInt(limit),
+      },
+    });
 
     if (!user) {
       return response(res, 404, false, "User not found!!");
@@ -259,6 +293,7 @@ export const saveAllPosts = async (req, res) => {
     const allposts = {
       savePosts: user.savedPosts,
       totalPost: user.savedPosts.length,
+      currentPage: Number(page),
     };
     return response(res, 200, true, "Get all posts", { allposts });
   } catch (error) {

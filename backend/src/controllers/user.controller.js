@@ -109,7 +109,7 @@ export const userProfile = async (req, res) => {
     if (!userId) {
       return response(res, 400, false, "Invalid userid");
     }
-    const user = await userModel.findById(userId).select("-password -role");
+    const user = await userModel.findById(userId).select("-password");
     if (!user) {
       return response(res, 400, false, "user not found!!");
     }

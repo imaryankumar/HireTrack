@@ -5,29 +5,31 @@ import toast from "react-hot-toast";
 import { Plus, Search } from "lucide-react";
 import JobCardSkeleton from "../components/JobsCardSkelton";
 import AllJobCards from "../components/AllJobCards";
+import useJobStore from "../store/jobStore";
+import usePostModal from "../store/usePostModal";
 
 const SavedPost = () => {
-  const [allSavedPost, setAllSavedPost] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const getSavedPosts = async () => {
-    setIsLoading(true);
-    try {
-      const { data } = await axiosInstance.get("/posts/saved");
-      if (data.success) {
-        setAllSavedPost(data?.allposts);
-      } else {
-        toast.error(data?.message);
-      }
-    } catch (error) {
-      console.error(error.message);
-      toast.error("something went wrong !!" || error?.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { saveData, isLoading, savedPostData } = useJobStore();
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
-    getSavedPosts();
-  }, []);
+    const debounce = setTimeout(() => {
+      if (search.trim().length > 1) {
+        savedPostData(`/posts/saved?search=${search}`);
+      } else {
+        savedPostData("/posts/saved");
+      }
+    }, 500);
+
+    return () => clearTimeout(debounce);
+  }, [search]);
+
+  useEffect(() => {
+    if (saveData && saveData.success === false) {
+      toast.error("Post not found!!");
+    }
+  }, [saveData]);
+
   return (
     <HomeLayout>
       <div className="w-full relative h-full py-2">
@@ -35,7 +37,7 @@ const SavedPost = () => {
           <h2 className="text-2xl">All Saved Applications</h2>
           <div className="w-full lg:w-auto flex items-center lg:flex-row flex-col justify-center gap-3 lg:gap-4">
             <button
-              onClick={() => setIsOpenPost(true)}
+              onClick={() => usePostModal.getState().openPostModal("create")}
               className="bg-[#2B8AC2] py-2 px-4 rounded-lg text-white cursor-pointer flex items-center gap-2 w-full lg:w-auto justify-center"
             >
               <Plus size={20} />
@@ -43,6 +45,8 @@ const SavedPost = () => {
             </button>
             <div className="border py-2 w-full lg:w-64 px-3 rounded-sm flex items-center justify-between">
               <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search..."
                 className="bg-transparent outline-none border-none w-full h-full pr-1"
               />
@@ -55,8 +59,8 @@ const SavedPost = () => {
             Array.from({ length: 3 }).map((_, index) => (
               <JobCardSkeleton key={index} />
             ))
-          ) : allSavedPost?.savePosts?.length > 0 ? (
-            allSavedPost?.savePosts?.map((item, index) => {
+          ) : saveData?.savePosts?.length > 0 ? (
+            saveData?.savePosts?.map((item, index) => {
               return <AllJobCards item={item} key={index} unSavedPost={true} />;
             })
           ) : (

@@ -12,11 +12,31 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstence";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useJobStore from "../store/jobStore";
+import usePostModal from "../store/usePostModal";
 
 const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
   const [savedPostIds, setSavedPostIds] = useState([]);
   const isPostSaved = savedPostIds.includes(item._id);
+
+  const { savedPostData, allJobData } = useJobStore();
+
+  const statusColorMap = {
+    applied: "text-blue-700",
+    interviewing: "text-amber-700",
+    offer: "text-emerald-700",
+    rejected: "text-rose-700",
+  };
+
+  useEffect(() => {
+    const fetchSavedPosts = async () => {
+      const data = await savedPostData("/posts/saved");
+      const ids = data?.savePosts?.map((post) => post._id) || [];
+      setSavedPostIds(ids);
+    };
+    fetchSavedPosts();
+  }, []);
 
   const onDownloadFileHandler = (downloadUrl) => {
     const link = document.createElement("a");
@@ -32,10 +52,9 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
       const { data } = await axiosInstance.post(`/posts/save/${id}`);
       if (data?.success) {
         toast.success(data?.message);
-        setSavedPostIds(data?.savedPosts);
-        if (data?.message?.toLowerCase().includes("unsaved")) {
-          window.location.reload();
-        }
+        const updated = await savedPostData("/posts/saved", true);
+        const ids = updated?.savePosts?.map((post) => post._id) || [];
+        setSavedPostIds(ids);
       } else {
         toast.error(data?.message);
       }
@@ -52,7 +71,7 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
       const { data } = await axiosInstance.delete(`/posts/${id}`);
       if (data?.success) {
         toast.success(data?.message);
-        window.location.reload();
+        allJobData("/posts/all", true);
       } else {
         toast.error(data?.message);
       }
@@ -70,12 +89,16 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
       className="w-full bg-slate-100 border border-[#2B8AC2] shadow-sm rounded-xl p-4 space-y-4"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-800 capitalize">
+        <h2 className="text-lg font-semibold text-gray-800 capitalize truncate max-w-[800px]">
           {item?.companyName}
         </h2>
         {isSaved && (
           <div className="flex items-center justify-center gap-4">
-            <span title="Edit post" className="cursor-pointer">
+            <span
+              title="Edit post"
+              onClick={() => usePostModal.getState().openPostModal("edit")}
+              className="cursor-pointer"
+            >
               <Pencil size={22} color="#2B8AC2" />
             </span>
             <span
@@ -93,14 +116,18 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
           </div>
         )}
         {unSavedPost && (
-          <span title="Edit post" className="cursor-pointer">
+          <span
+            onClick={() => usePostModal.getState().openPostModal("edit")}
+            title="Edit post"
+            className="cursor-pointer"
+          >
             <Pencil size={22} color="#2B8AC2" />
           </span>
         )}
       </div>
       <div className="flex justify-between text-sm text-gray-700">
         <div className="space-y-1">
-          <p className="flex items-center gap-2">
+          <p className="flex items-center gap-2 truncate max-w-[200px]">
             <Briefcase size={16} className="text-gray-500" />
             {item?.position}
           </p>
@@ -108,17 +135,22 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
             <CalendarDays size={16} className="text-gray-500" />
             {new Date(item?.appliedDate).toLocaleDateString()}
           </p>
-          <p className="flex items-center gap-2">
+          <p className="flex items-center gap-2 truncate max-w-[120px]">
             <MapPin size={16} className="text-gray-500" />
             {item?.location}
           </p>
         </div>
         <div className="space-y-1 text-right">
-          <p className="flex items-center gap-2 justify-end">
-            <Building2 size={16} className="text-gray-500" />
+          <p
+            className={`flex items-center gap-2 justify-end ${
+              statusColorMap[item?.status] || "text-gray-500"
+            }`}
+          >
+            <Building2 size={16} />
             {item?.status}
           </p>
-          <p className="flex items-center gap-2 justify-end">
+
+          <p className="flex items-center text-base gap-2 justify-end">
             <IndianRupee size={16} className="text-gray-500" />
             {item?.salaryRange}
           </p>
@@ -139,7 +171,9 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
         </div>
       </div>
       <div className="w-full flex items-center justify-between">
-        <p className="text-sm text-gray-500 italic">"{item?.notes}"</p>
+        <p className="text-sm text-gray-500 italic truncate max-w-[120px]">
+          "{item?.notes}"
+        </p>
         {isSaved && (
           <span
             onClick={() => onPostDeleteHandler(item._id)}

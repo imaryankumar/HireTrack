@@ -2,36 +2,38 @@ import { Search, Plus } from "lucide-react";
 import HomeLayout from "../Layouts/HomeLayout";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
-import axiosInstance from "../utils/axiosInstence";
 import JobCardSkeleton from "../components/JobsCardSkelton";
 import AllJobCards from "../components/AllJobCards";
 import PostsCard from "../components/PostsCard";
+import useJobStore from "../store/jobStore";
+import usePostModal from "../store/usePostModal";
 
 const AllJobs = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [allJobLists, setAllJobLists] = useState({});
-  const [isOpenPost, setIsOpenPost] = useState(false);
+  const [search, setSearch] = useState("");
+  const { data, isLoading, allJobData } = useJobStore();
 
-  const getAllApplications = async () => {
-    setIsLoading(true);
-    try {
-      const { data } = await axiosInstance.get("/posts/all");
-      console.log("res", data.allPosts);
-      if (data?.success) {
-        setAllJobLists(data?.allPosts);
-      } else {
-        toast.error("Post not found!!");
-      }
-    } catch (error) {
-      console.error(error.message);
-      toast.error("something went wrong" || error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
   useEffect(() => {
-    getAllApplications();
+    allJobData("/posts/all");
   }, []);
+
+  useEffect(() => {
+    if (data && data.success === false) {
+      toast.error("Post not found!!");
+    }
+  }, [data]);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim()) {
+        allJobData(`/posts/all?search=${search}`);
+      } else {
+        allJobData("/posts/all");
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
   return (
     <HomeLayout>
       <div className="w-full relative h-full py-2">
@@ -39,7 +41,7 @@ const AllJobs = () => {
           <h2 className="text-2xl">All Job Applications</h2>
           <div className="w-full lg:w-auto flex items-center lg:flex-row flex-col justify-center gap-3 lg:gap-4">
             <button
-              onClick={() => setIsOpenPost(true)}
+              onClick={() => usePostModal.getState().openPostModal("create")}
               className="bg-[#2B8AC2] py-2 px-4 rounded-lg text-white cursor-pointer flex items-center gap-2 w-full lg:w-auto justify-center"
             >
               <Plus size={20} />
@@ -47,6 +49,8 @@ const AllJobs = () => {
             </button>
             <div className="border py-2 w-full lg:w-64 px-3 rounded-sm flex items-center justify-between">
               <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search..."
                 className="bg-transparent outline-none border-none w-full h-full pr-1"
               />
@@ -59,8 +63,8 @@ const AllJobs = () => {
             Array.from({ length: 3 }).map((_, index) => (
               <JobCardSkeleton key={index} />
             ))
-          ) : allJobLists?.getAllPosts?.length > 0 ? (
-            allJobLists?.getAllPosts?.map((item, index) => {
+          ) : data?.getAllPosts?.length > 0 ? (
+            data?.getAllPosts?.map((item, index) => {
               return <AllJobCards item={item} key={index} isSaved={true} />;
             })
           ) : (
@@ -70,7 +74,6 @@ const AllJobs = () => {
           )}
         </div>
       </div>
-      {isOpenPost && <PostsCard setIsOpenPost={setIsOpenPost} />}
     </HomeLayout>
   );
 };
