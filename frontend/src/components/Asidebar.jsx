@@ -70,14 +70,14 @@ const Asidebar = () => {
         } px-4 bg-white text-black border-r-4 border-l-4 border-[#2B8AC2] items-center justify-start gap-3 text-sm lg:text-base`}
       >
         <span className="w-12 h-12 rounded-full flex items-center justify-center uppercase bg-[#2B8AC2] text-white">
-          {userDetails?.username?.slice(0, 2) || "He"}
+          {userDetails?.email?.slice(0, 2) || "He"}
         </span>
         <div className="flex flex-col items-start justify-center">
-          <span className="capitalize">
-            {userDetails?.username || "Hello123"}
-          </span>
-          <span className=" lowercase">
+          <span className="lowercase">
             {userDetails?.email || "hello@gmail.com"}
+          </span>
+          <span className="lowercase text-md">
+            {userDetails?.username || "user"}
           </span>
         </div>
       </div>

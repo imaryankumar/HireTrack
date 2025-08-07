@@ -92,7 +92,7 @@ export const userLogin = async (req, res) => {
       }
     );
     const user = {
-      username: isUserExist.username,
+      role: isUserExist.role,
       email: isUserExist.email,
     };
 

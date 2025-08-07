@@ -65,16 +65,39 @@ const PostsCard = () => {
         dataToSend.append(key, value)
       );
 
+      if (mode === "create" && !resume) {
+        toast.error("upload file must be required!!", {
+          id: "upload-err",
+        });
+        return;
+      }
       if (resume) {
         dataToSend.append("resume", resume);
       }
+      let response;
+      if (mode === "edit" && jobData?._id) {
+        response = await axiosInstance.put(
+          `/posts/${jobData._id}`,
+          dataToSend,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+      } else {
+        response = await axiosInstance.post("/posts/create", dataToSend, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
 
-      const { data } = await axiosInstance.post("/posts/create", dataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = response;
 
       if (data.success) {
         toast.success(data.message || "Job posted successfully.");
+        if (mode !== "edit") {
+          allJobData(`/posts/all?status=${formData.status}`, true);
+        } else {
+          allJobData("/posts/all", true);
+        }
         closePostModal();
         resetJobFields();
       } else {
@@ -99,7 +122,7 @@ const PostsCard = () => {
         <div className="h-auto py-4 bg-white text-black p-2 lg:p-4 rounded-lg">
           <div className="w-full flex items-start justify-between">
             <h3 className="text-2xl text-[#2B8AC2] font-semibold">
-              Post a Job
+              {mode === "edit" ? "Edit a Job Post" : "Post a Job"}
             </h3>
             <span
               title="Close"

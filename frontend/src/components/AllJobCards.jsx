@@ -19,6 +19,7 @@ import usePostModal from "../store/usePostModal";
 const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
   const [savedPostIds, setSavedPostIds] = useState([]);
   const isPostSaved = savedPostIds.includes(item._id);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { savedPostData, allJobData } = useJobStore();
 
@@ -67,6 +68,7 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
   };
 
   const onPostDeleteHandler = async (id) => {
+    setIsLoading(true);
     try {
       const { data } = await axiosInstance.delete(`/posts/${id}`);
       if (data?.success) {
@@ -80,6 +82,8 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
       toast.error("something went wrong!!" || error.message, {
         id: "delete-error",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -96,7 +100,9 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
           <div className="flex items-center justify-center gap-4">
             <span
               title="Edit post"
-              onClick={() => usePostModal.getState().openPostModal("edit")}
+              onClick={() =>
+                usePostModal.getState().openPostModal("edit", item)
+              }
               className="cursor-pointer"
             >
               <Pencil size={22} color="#2B8AC2" />
@@ -175,13 +181,22 @@ const AllJobCards = ({ item, index, isSaved = false, unSavedPost = false }) => {
           "{item?.notes}"
         </p>
         {isSaved && (
-          <span
-            onClick={() => onPostDeleteHandler(item._id)}
-            className="cursor-pointer"
-            title="delete"
-          >
-            <Trash color="red" />
-          </span>
+          <div className="relative group">
+            <span className="cursor-pointer" title="delete">
+              <Trash color="red" />
+            </span>
+            <div className="absolute top-full mt-2 right-0 hidden group-hover:flex flex-col bg-white p-2 rounded shadow border w-32 items-center">
+              <p className="text-sm mb-2 text-gray-700 text-center">
+                Are you sure Delete?
+              </p>
+              <button
+                onClick={() => onPostDeleteHandler(item._id)}
+                className="px-6 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 cursor-pointer"
+              >
+                {isLoading ? "Loading.." : "Yes"}
+              </button>
+            </div>
+          </div>
         )}
         {unSavedPost && (
           <span

@@ -20,6 +20,9 @@ export const postCreated = async (req, res) => {
     if (!companyName || !position || !location) {
       return response(res, 400, false, "All fields are required!");
     }
+    if (!filename) {
+      return response(res, 400, false, "Upload field are required!");
+    }
 
     const isPostApplied = await JobApplication.findOne({
       user: userId,
